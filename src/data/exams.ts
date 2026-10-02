@@ -1,3 +1,5 @@
+import { it005Exam02 } from "./it005-exam-02";
+
 export const subjects: any[] = [
   {
     id: "mang-may-tinh",
@@ -436,6 +438,7 @@ export const subjects: any[] = [
           },
         ],
       },
+      it005Exam02,
     ],
   },
 ];

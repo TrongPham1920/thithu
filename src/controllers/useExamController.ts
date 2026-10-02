@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { isQuestionAnswered, isQuestionCorrect, calculateExamScore } from "@/models/exam";
 import {
   getCatalogStats,
   getDefaultSubjectId,
@@ -18,11 +19,23 @@ function shuffleItems(items: any[]) {
 function prepareExam(exam: any) {
   return {
     ...exam,
+    sourceExamId: exam.id,
     questions: shuffleItems(exam.questions).map((question: any) => ({
       ...question,
-      options: shuffleItems(question.options),
+      ...(question.parts
+        ? {
+            parts: question.parts.map((part: any) => ({
+              ...part,
+              options: shuffleItems(part.options),
+            })),
+          }
+        : { options: shuffleItems(question.options) }),
     })),
   };
+}
+
+function pickRandomExam(exams: any[]) {
+  return exams[Math.floor(Math.random() * exams.length)];
 }
 
 export function useExamController() {
@@ -38,14 +51,16 @@ export function useExamController() {
 
   const currentQuestion = activeExam?.questions[currentIndex];
   const selectedAnswer = currentQuestion ? answers[currentQuestion.id] : null;
-  const isAnswered = Boolean(selectedAnswer);
+  const isAnswered = currentQuestion ? isQuestionAnswered(currentQuestion, answers) : false;
   const correctCount = activeExam
-    ? activeExam.questions.filter(
-        (question: any) => answers[question.id] === question.correctOptionId,
-      ).length
+    ? activeExam.questions.filter((question: any) => isQuestionCorrect(question, answers)).length
     : 0;
 
   function startExam(exam: any) {
+    const owner = subjects.find((subject: any) =>
+      subject.exams.some((item: any) => item.id === exam.id),
+    );
+    if (owner) setSelectedSubjectId(owner.id);
     setActiveExam(prepareExam(exam));
     setAnswers({});
     setCurrentIndex(0);
@@ -53,13 +68,44 @@ export function useExamController() {
     setScreen("exam");
   }
 
-  function chooseAnswer(optionId: string) {
-    if (!currentQuestion || answers[currentQuestion.id]) return;
-    setAnswers((value: any) => ({ ...value, [currentQuestion.id]: optionId }));
+  function retryActiveExam() {
+    const owner = subjects.find((subject: any) =>
+      subject.exams.some((exam: any) => exam.id === activeExam?.sourceExamId),
+    );
+    const sourceExam = owner?.exams.find((exam: any) => exam.id === activeExam?.sourceExamId);
+    if (sourceExam) startExam(sourceExam);
+  }
+
+  function resumeActiveExam() {
+    const owner = subjects.find((subject: any) =>
+      subject.exams.some((exam: any) => exam.id === activeExam?.sourceExamId),
+    );
+    if (owner) setSelectedSubjectId(owner.id);
+    setScreen("exam");
+  }
+
+  function startRandomExam() {
+    startExam(pickRandomExam(selectedSubject.exams));
+  }
+
+  function chooseAnswer(optionId: string, partId?: string) {
+    const part = partId
+      ? currentQuestion?.parts?.find((item: any) => item.id === partId)
+      : currentQuestion;
+    if (!part || answers[part.id] || !part.options.some((option: any) => option.id === optionId))
+      return;
+    setAnswers((value: any) => ({ ...value, [part.id]: optionId }));
   }
 
   function goNext() {
     if (currentIndex >= activeExam.questions.length - 1) {
+      const unanswered = activeExam.questions.findIndex(
+        (question: any) => !isQuestionAnswered(question, answers),
+      );
+      if (unanswered >= 0) {
+        setCurrentIndex(unanswered);
+        return;
+      }
       setScreen("result");
       return;
     }
@@ -78,16 +124,20 @@ export function useExamController() {
       chooseAnswer,
       goNext,
       resetToSubjects,
+      retryActiveExam,
+      resumeActiveExam,
       setCurrentIndex,
       setScreen,
       setSelectedSubjectId,
       startExam,
+      startRandomExam,
     },
     state: {
       activeExam,
       answers,
       attemptNo,
       correctCount,
+      grading: activeExam ? calculateExamScore(activeExam, answers) : null,
       currentIndex,
       currentQuestion,
       isAnswered,

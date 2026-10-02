@@ -1,14 +1,53 @@
 "use client";
 
-import { countQuestions } from "@/models/exam";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import {
+  countQuestions,
+  isQuestionAnswered,
+  isQuestionCorrect,
+  answeredQuestionCount,
+} from "@/models/exam";
+import { ThemeToggle } from "@/components/ThemeControls";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  GraduationCap,
+  RotateCcw,
+  Shuffle,
+  CircleCheck,
+  CircleX,
+  ListChecks,
+  Library,
+  Network,
+  Search,
+  Play,
+  Clock3,
+  Eye,
+  ChevronDown,
+} from "lucide-react";
 
 export function ExamPracticeView({ controller }: any) {
+  const [search, setSearch] = useState("");
   const { actions, state } = controller;
   const {
     activeExam,
     answers,
     attemptNo,
     correctCount,
+    grading,
     currentIndex,
     currentQuestion,
     isAnswered,
@@ -19,373 +58,773 @@ export function ExamPracticeView({ controller }: any) {
     subjects,
     stats,
   } = state;
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [screen, currentIndex]);
   const {
     chooseAnswer,
     goNext,
-    resetToSubjects,
+    retryActiveExam,
+    resumeActiveExam,
     setCurrentIndex,
     setScreen,
     setSelectedSubjectId,
     startExam,
+    startRandomExam,
   } = actions;
 
   if (screen === "result" && activeExam) {
-    const percent = Math.round((correctCount / activeExam.questions.length) * 100);
+    const percent = Math.round(grading.score * 10);
 
     return (
-      <main className="min-h-screen bg-[#f6f7f2] text-slate-950">
-        <ShellHeader onHome={resetToSubjects} />
-        <section className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                Kết quả lần làm #{attemptNo - 1}
+      <AppFrame onHome={() => setScreen("home")}>
+        <section className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[360px_1fr] lg:px-8">
+          <Card className="border-emerald-400/20 bg-card shadow-none">
+            <CardHeader>
+              <Badge
+                className="bg-emerald-400/15 text-emerald-700 dark:text-emerald-300"
+                variant="outline"
+              >
+                Kết quả lần #{attemptNo - 1}
+              </Badge>
+              <CardTitle className="text-3xl font-black tracking-normal text-foreground">
+                {grading.score.toFixed(2)}{" "}
+                <span className="text-lg font-medium text-muted-foreground">/ 10 điểm</span>
+              </CardTitle>
+              <p className="text-sm leading-6 text-muted-foreground">
+                {activeExam.title} · {selectedSubject.name}
               </p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight">
-                Bạn đúng {correctCount} câu
-              </h1>
-              <p className="mt-2 text-slate-600">
-                {activeExam.title} - {selectedSubject.name}
-              </p>
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                <Metric label="Tổng câu" value={activeExam.questions.length} />
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <Progress value={percent} className="[&_[data-slot=progress-indicator]]:bg-primary" />
+              <div className="grid grid-cols-3 gap-2">
+                <Metric label="Tỉ lệ đúng" value={`${percent}%`} />
                 <Metric label="Đúng" value={correctCount} />
-                <Metric label="Tỷ lệ" value={`${percent}%`} />
+                <Metric label="Sai" value={activeExam.questions.length - correctCount} />
               </div>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <button
-                  onClick={() => startExam(selectedSubject.exams[0])}
-                  className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
-                  Làm lại và đảo đề
-                </button>
-                <button
+              <p className="text-sm leading-6 text-muted-foreground">
+                {grading.earnedPoints}/{grading.totalPoints} ý đúng. Mỗi ý đúng tính 1 điểm, quy đổi
+                về thang 10.
+              </p>
+              <div className="grid gap-2">
+                <Button onClick={retryActiveExam} className="h-10">
+                  <RotateCcw size={16} /> Làm lại và đảo đề
+                </Button>
+                <Button
                   onClick={() => setScreen("home")}
-                  className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
+                  variant="outline"
+                  className="h-10 border-border bg-muted/40 text-foreground hover:bg-muted"
                 >
-                  Chọn môn khác
-                </button>
+                  Chọn môn hoặc đề khác
+                </Button>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold">Bảng câu hỏi</h2>
-              <div className="mt-4 grid grid-cols-10 gap-2 sm:grid-cols-15">
-                {activeExam.questions.map((question: any, index: number) => {
-                  const correct = answers[question.id] === question.correctOptionId;
-                  return (
-                    <button
-                      key={question.id}
-                      onClick={() => {
-                        setCurrentIndex(index);
-                        setScreen("exam");
-                      }}
-                      className={`h-9 rounded-md text-sm font-bold ${
-                        correct ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
-                      }`}
-                    >
-                      {index + 1}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <Card className="border-border bg-card">
+            <CardHeader>
+              <CardTitle className="text-xl text-foreground">Bảng câu hỏi</CardTitle>
+              <p className="text-sm text-muted-foreground">Bấm vào số câu để xem lại chi tiết.</p>
+            </CardHeader>
+            <CardContent>
+              <QuestionGrid
+                questions={activeExam.questions}
+                answers={answers}
+                currentIndex={currentIndex}
+                onPick={(index: number) => {
+                  setCurrentIndex(index);
+                  setScreen("exam");
+                }}
+              />
+            </CardContent>
+          </Card>
+        </section>
 
+        <section className="mx-auto w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
           <ReviewList exam={activeExam} answers={answers} />
         </section>
-      </main>
+      </AppFrame>
     );
   }
 
   if (screen === "exam" && activeExam && currentQuestion) {
-    const progress = Math.round(((currentIndex + 1) / activeExam.questions.length) * 100);
-    const correctOption = currentQuestion.options.find(
-      (option: any) => option.id === currentQuestion.correctOptionId,
-    );
+    const answeredCount = answeredQuestionCount(activeExam, answers);
+    const progress = Math.round((answeredCount / activeExam.questions.length) * 100);
 
     return (
-      <main className="min-h-screen bg-[#f6f7f2] text-slate-950">
-        <ShellHeader onHome={resetToSubjects} />
-        <section className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-8">
-          <aside className="h-fit rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-              {selectedSubject.code}
-            </p>
-            <h2 className="mt-1 font-bold">{selectedSubject.name}</h2>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
-              <div className="h-full bg-emerald-600" style={{ width: `${progress}%` }} />
-            </div>
-            <p className="mt-2 text-sm text-slate-600">
-              Câu {currentIndex + 1} / {activeExam.questions.length}
-            </p>
-            <div className="mt-4 grid grid-cols-5 gap-2">
-              {activeExam.questions.map((question: any, index: number) => {
-                const answered = answers[question.id];
-                const correct = answered === question.correctOptionId;
-                return (
-                  <button
-                    key={question.id}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`h-8 rounded-md text-xs font-bold ${
-                      index === currentIndex
-                        ? "bg-slate-950 text-white"
-                        : answered
-                          ? correct
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-rose-100 text-rose-800"
-                          : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {index + 1}
-                  </button>
-                );
-              })}
-            </div>
+      <AppFrame onHome={() => setScreen("home")}>
+        <div className="exam-toolbar mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 pt-6 sm:px-6 lg:px-8">
+          <Button variant="ghost" onClick={() => setScreen("home")}>
+            <ArrowLeft size={16} /> Chọn đề khác
+          </Button>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">Lần {attemptNo - 1}</span>
+            <RestartExam onRestart={retryActiveExam} answeredCount={Object.keys(answers).length} />
+          </div>
+        </div>
+        <div className="mobile-attempt-progress px-4 pt-4">
+          <div className="flex items-center justify-between text-sm">
+            <span>{selectedSubject.name}</span>
+            <span>
+              {answeredCount}/{activeExam.questions.length} câu
+            </span>
+          </div>
+          <Progress
+            value={progress}
+            className="mt-2 [&_[data-slot=progress-indicator]]:bg-primary"
+          />
+        </div>
+        <section className="practice-layout mx-auto grid w-full max-w-6xl gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_260px] lg:px-8">
+          <aside className="practice-navigation space-y-4 lg:sticky lg:top-24 lg:h-fit lg:col-start-2 lg:row-start-1">
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <Badge variant="outline" className="w-fit border-primary/30 text-primary">
+                  {selectedSubject.code}
+                </Badge>
+                <CardTitle className="text-xl text-foreground">{selectedSubject.name}</CardTitle>
+                <p className="text-sm leading-6 text-muted-foreground">{activeExam.title}</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Progress
+                  value={progress}
+                  className="[&_[data-slot=progress-indicator]]:bg-primary"
+                />
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Tiến độ</span>
+                  <span className="font-bold tabular-nums text-foreground">
+                    {answeredCount}/{activeExam.questions.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-sm">
+                  <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300">
+                    <CircleCheck size={16} />
+                    {correctCount} đúng
+                  </span>
+                  <span className="flex items-center gap-1.5 text-rose-700 dark:text-rose-300">
+                    <CircleX size={16} />
+                    {answeredCount - correctCount} sai
+                  </span>
+                </div>
+                <details className="question-map" open>
+                  <summary className="mb-3 cursor-pointer text-sm font-semibold">
+                    <ListChecks className="mr-1 inline" size={16} /> Bảng câu hỏi
+                  </summary>
+                  <QuestionGrid
+                    compact
+                    questions={activeExam.questions}
+                    answers={answers}
+                    currentIndex={currentIndex}
+                    onPick={setCurrentIndex}
+                  />
+                </details>
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                  <span>✓ Đúng</span>
+                  <span>× Sai</span>
+                  <span>— Chưa làm</span>
+                </div>
+                {answeredCount === activeExam.questions.length && (
+                  <Button className="w-full" onClick={() => setScreen("result")}>
+                    Xem kết quả <ArrowRight size={16} />
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           </aside>
 
-          <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-emerald-700">{activeExam.title}</p>
-                <h1 className="mt-1 text-2xl font-bold tracking-tight">Câu {currentIndex + 1}</h1>
+          <Card
+            data-question-id={currentQuestion.id}
+            className="question-panel border-border bg-card shadow-none"
+          >
+            <CardHeader className="gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <Badge className="bg-muted text-foreground" variant="secondary">
+                    Câu {currentIndex + 1} / {activeExam.questions.length}
+                  </Badge>
+                  <CardTitle className="mt-4 whitespace-pre-line text-xl font-semibold leading-8 text-foreground">
+                    {currentQuestion.prompt}
+                  </CardTitle>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={
+                    isAnswered
+                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-700 dark:text-emerald-300"
+                      : "border-amber-400/30 bg-amber-400/10 text-amber-700 dark:text-amber-300"
+                  }
+                >
+                  {isAnswered ? "Đã trả lời" : "Chọn 1 đáp án"}
+                </Badge>
               </div>
-              <span className="rounded-md bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
-                {isAnswered ? "Đã trả lời" : "Chưa trả lời"}
-              </span>
-            </div>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {currentQuestion.parts ? (
+                currentQuestion.parts.map((part: any, index: any) => (
+                  <div className="question-part" data-part-id={part.id} key={part.id}>
+                    <h3 className="mb-3 font-semibold">
+                      {index + 1}. {part.prompt}
+                    </h3>
+                    <AnswerBlock
+                      question={part}
+                      selectedAnswer={answers[part.id]}
+                      compact={currentQuestion.kind === "matching"}
+                      onChoose={(optionId: any) => chooseAnswer(optionId, part.id)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <AnswerBlock
+                  question={currentQuestion}
+                  selectedAnswer={selectedAnswer}
+                  onChoose={chooseAnswer}
+                />
+              )}
 
-            <p className="mt-5 whitespace-pre-line text-lg font-semibold leading-8 text-slate-900">
-              {currentQuestion.prompt}
-            </p>
-
-            <div className="mt-6 grid gap-3">
-              {currentQuestion.options.map((option: any) => {
-                const isSelected = selectedAnswer === option.id;
-                const isCorrect = option.id === currentQuestion.correctOptionId;
-                const stateClass = !isAnswered
-                  ? "border-slate-200 bg-white hover:border-emerald-400 hover:bg-emerald-50"
-                  : isCorrect
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-950"
-                    : isSelected
-                      ? "border-rose-500 bg-rose-50 text-rose-950"
-                      : "border-slate-200 bg-slate-50 text-slate-500";
-
-                return (
-                  <button
-                    key={option.id}
-                    disabled={isAnswered}
-                    onClick={() => chooseAnswer(option.id)}
-                    className={`flex w-full items-start gap-3 rounded-lg border p-4 text-left transition ${stateClass}`}
-                  >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-950 text-sm font-bold text-white">
-                      {option.id.toUpperCase()}
-                    </span>
-                    <span className="text-base leading-7">{option.text}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {isAnswered ? (
-              <div
-                className={`mt-6 rounded-lg border p-4 ${
-                  selectedAnswer === currentQuestion.correctOptionId
-                    ? "border-emerald-200 bg-emerald-50"
-                    : "border-rose-200 bg-rose-50"
-                }`}
-              >
-                <p className="font-bold">
-                  {selectedAnswer === currentQuestion.correctOptionId ? "Chính xác." : "Chưa đúng."}{" "}
-                  Đáp án đúng: {correctOption?.id?.toUpperCase()} - {correctOption?.text}
-                </p>
-                <p className="mt-2 whitespace-pre-line leading-7 text-slate-700">
-                  {currentQuestion.explanation}
-                </p>
+              <div className="question-actions flex items-center justify-between gap-3 border-t border-border pt-5">
+                <Button
+                  onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+                  variant="outline"
+                  disabled={currentIndex === 0}
+                  className="h-10 border-border bg-muted/40 text-foreground hover:bg-muted"
+                >
+                  <ArrowLeft size={16} /> Câu trước
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (
+                      currentIndex === activeExam.questions.length - 1 &&
+                      answeredCount < activeExam.questions.length
+                    )
+                      setCurrentIndex(
+                        activeExam.questions.findIndex((q: any) => !isQuestionAnswered(q, answers)),
+                      );
+                    else goNext();
+                  }}
+                  disabled={!isAnswered}
+                  className="h-10 px-5"
+                >
+                  {currentIndex >= activeExam.questions.length - 1
+                    ? answeredCount === activeExam.questions.length
+                      ? "Xem kết quả"
+                      : "Câu chưa làm"
+                    : "Câu tiếp theo"}{" "}
+                  <ArrowRight size={16} />
+                </Button>
               </div>
-            ) : null}
-
-            <div className="mt-6 flex items-center justify-between gap-3">
-              <button
-                onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-                className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40"
-                disabled={currentIndex === 0}
-              >
-                Câu trước
-              </button>
-              <button
-                onClick={goNext}
-                disabled={!isAnswered}
-                className="rounded-md bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {currentIndex >= activeExam.questions.length - 1 ? "Xem kết quả" : "Câu tiếp"}
-              </button>
-            </div>
-          </section>
+            </CardContent>
+          </Card>
         </section>
-      </main>
+      </AppFrame>
     );
   }
 
-  return (
-    <main className="min-h-screen bg-[#f6f7f2] text-slate-950">
-      <ShellHeader onHome={resetToSubjects} />
-      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-wide text-emerald-700">
-                Thi thử nhiều môn
-              </p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">
-                Luyện đề, biết đáp án ngay.
-              </h1>
-              <p className="mt-4 max-w-xl text-lg leading-8 text-slate-600">
-                Chọn môn, làm từng câu, xem giải thích ngay sau khi chọn đáp án, rồi xem lại toàn bộ
-                đề sau khi hoàn thành.
-              </p>
-            </div>
-            <div className="mt-8 grid grid-cols-3 gap-2">
-              <Metric label="Môn" value={stats.subjectCount} />
-              <Metric label="Đề" value={stats.examCount} />
-              <Metric label="Câu hỏi" value={stats.questionCount} />
-            </div>
-          </div>
+  const visibleSubjects = subjects.filter((subject: any) =>
+    `${subject.name} ${subject.code}`.toLowerCase().includes(search.toLowerCase()),
+  );
 
-          <div className="grid gap-4">
-            {subjects.map((subject: any) => (
+  return (
+    <AppFrame onHome={() => setScreen("home")}>
+      <div className="library-shell">
+        <aside className="library-sidebar">
+          <p className="sidebar-label">KHÔNG GIAN HỌC TẬP</p>
+          <div className="sidebar-current">
+            <Library size={19} /> Thư viện đề thi
+          </div>
+          <div className="sidebar-section-title">
+            <span>Môn học</span>
+            <span>{subjects.length}</span>
+          </div>
+          {subjects.map((subject: any) => (
+            <button
+              key={subject.id}
+              className={`sidebar-subject ${subject.id === selectedSubjectId ? "selected" : ""}`}
+              aria-pressed={subject.id === selectedSubjectId}
+              onClick={() => setSelectedSubjectId(subject.id)}
+            >
+              <Network size={18} />
+              <span>
+                {subject.name}
+                <small>{subject.code}</small>
+              </span>
+            </button>
+          ))}
+          {activeExam && (
+            <button className="sidebar-resume" onClick={resumeActiveExam}>
+              <RotateCcw size={18} />
+              <span>
+                Bài đang làm
+                <small>
+                  {answeredQuestionCount(activeExam, answers)}/{activeExam.questions.length} câu đã
+                  trả lời
+                </small>
+              </span>
+              <ArrowRight size={16} />
+            </button>
+          )}
+          <div className="sidebar-total">
+            <BookOpen size={18} />
+            <span>
+              <strong>{stats.questionCount}</strong> câu hỏi trong thư viện
+            </span>
+          </div>
+        </aside>
+        <section className="library-body">
+          <div className="library-heading">
+            <div>
+              <p className="library-kicker">LUYỆN TẬP</p>
+              <h1>Thư viện đề thi</h1>
+              <p>Chọn môn học, bắt đầu một bài luyện tập mới.</p>
+            </div>
+            <label className="library-search">
+              <Search size={18} />
+              <input
+                aria-label="Tìm môn học"
+                placeholder="Tìm môn học, mã môn…"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </label>
+          </div>
+          {activeExam && (
+            <section className="continue-band">
+              <span className="continue-icon">
+                <Play size={23} />
+              </span>
+              <div className="continue-copy">
+                <p>Bài luyện tập đang chờ bạn</p>
+                <h2>{activeExam.title}</h2>
+                <div className="continue-progress">
+                  <span
+                    style={{
+                      width: `${(answeredQuestionCount(activeExam, answers) / activeExam.questions.length) * 100}%`,
+                    }}
+                  />
+                </div>
+                <small>
+                  {answeredQuestionCount(activeExam, answers)}/{activeExam.questions.length} câu đã
+                  trả lời
+                </small>
+              </div>
+              <div className="continue-actions">
+                <Button onClick={resumeActiveExam}>
+                  Tiếp tục làm bài <ArrowRight size={16} />
+                </Button>
+                <RestartExam
+                  onRestart={retryActiveExam}
+                  answeredCount={Object.keys(answers).length}
+                />
+              </div>
+            </section>
+          )}
+          <div className="library-section-title">
+            <h2>Môn học của bạn</h2>
+            <span>{visibleSubjects.length} môn học</span>
+          </div>
+          <div className="subject-tiles">
+            {visibleSubjects.map((subject: any) => (
               <button
                 key={subject.id}
+                className={`subject-tile ${subject.id === selectedSubjectId ? "selected" : ""}`}
+                aria-pressed={subject.id === selectedSubjectId}
                 onClick={() => setSelectedSubjectId(subject.id)}
-                className={`rounded-lg border p-5 text-left shadow-sm transition ${
-                  selectedSubjectId === subject.id
-                    ? "border-emerald-500 bg-emerald-50"
-                    : "border-slate-200 bg-white hover:border-slate-300"
-                }`}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-bold text-emerald-700">{subject.code}</p>
-                    <h2 className="mt-1 text-xl font-bold">{subject.name}</h2>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{subject.description}</p>
-                  </div>
-                  <span className="rounded-md bg-white px-3 py-1 text-sm font-semibold text-slate-700">
-                    {subject.exams.length} đề - {countQuestions(subject)} câu
+                <div className="subject-tile-top">
+                  <span className="subject-symbol">
+                    <Network size={28} />
                   </span>
+                  <span className="subject-code">{subject.code}</span>
+                  {subject.id === selectedSubjectId && (
+                    <CircleCheck size={19} className="subject-selected-icon" />
+                  )}
+                </div>
+                <h3>{subject.name}</h3>
+                <p>
+                  {subject.exams.length} đề luyện tập <span>·</span> {countQuestions(subject)} câu
+                  hỏi
+                </p>
+                <div className="subject-tile-footer">
+                  <span className="flex items-center gap-2">
+                    {subject.id === selectedSubjectId && <CircleCheck size={16} />}
+                    {subject.id === selectedSubjectId ? "Đang xem đề" : "Xem đề thi"}
+                  </span>
+                  {subject.id !== selectedSubjectId && <ArrowRight size={18} />}
                 </div>
               </button>
             ))}
+            {!visibleSubjects.length && (
+              <p className="empty-library">Không tìm thấy môn học. Thử tên hoặc mã môn khác.</p>
+            )}
           </div>
-        </div>
-
-        <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Đề trong môn
-              </p>
-              <h2 className="mt-1 text-2xl font-bold">{selectedSubject.name}</h2>
+          <section className="exam-section">
+            <div className="library-section-title">
+              <div>
+                <p className="library-kicker">{selectedSubject.code}</p>
+                <h2>Đề luyện tập</h2>
+                <p className="exam-subject-name">{selectedSubject.name}</p>
+              </div>
+              <Button
+                variant="ghost"
+                onClick={startRandomExam}
+                disabled={!selectedSubject.exams.length}
+              >
+                <Shuffle size={16} /> Chọn ngẫu nhiên
+              </Button>
             </div>
-            <button
-              onClick={() => startExam(selectedSubject.exams[0])}
-              className="rounded-md bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              Làm ngẫu nhiên
-            </button>
-          </div>
-
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {selectedSubject.exams.map((exam: any) => (
-              <article key={exam.id} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-500">{exam.source}</p>
-                <h3 className="mt-1 text-lg font-bold">{exam.title}</h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  {exam.questions.length} câu - thời gian mẫu {exam.duration}
-                </p>
-                <button
-                  onClick={() => startExam(exam)}
-                  className="mt-4 rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-800"
-                >
-                  Bắt đầu làm đề
-                </button>
+            {selectedSubject.exams.map((exam: any, index: number) => (
+              <article key={exam.id} className="exam-entry">
+                <div className="exam-entry-main">
+                  <span className="exam-number">{String(index + 1).padStart(2, "0")}</span>
+                  <div className="exam-entry-copy">
+                    <span className="exam-category">ĐỀ THI THỬ</span>
+                    <h3>{exam.title}</h3>
+                    <div className="exam-metadata">
+                      <span>
+                        <ListChecks size={16} />
+                        {exam.questions.length} câu hỏi
+                      </span>
+                      <span>
+                        <Clock3 size={16} />
+                        Thời gian tham khảo: {exam.duration || "Không giới hạn"}
+                      </span>
+                    </div>
+                  </div>
+                  <Button className="exam-start-button" onClick={() => startExam(exam)}>
+                    Bắt đầu làm bài <ArrowRight size={16} />
+                  </Button>
+                </div>
+                <details className="exam-preview">
+                  <summary>
+                    <Eye size={18} /> <span>Xem trước câu hỏi</span>
+                    <small>{Math.min(3, exam.questions.length)} câu mẫu</small>{" "}
+                    <ChevronDown size={16} />
+                  </summary>
+                  <ol>
+                    {exam.questions.slice(0, 3).map((q: any, i: number) => (
+                      <li key={q.id}>
+                        <span>{String(i + 1).padStart(2, "0")}</span>
+                        <p>{q.prompt}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </details>
               </article>
             ))}
-          </div>
+            {!selectedSubject.exams.length && (
+              <p className="empty-library">Môn học này chưa có đề luyện tập.</p>
+            )}
+          </section>
+          <footer className="library-footer">
+            <GraduationCap size={18} />
+            <span>Thi thử</span>
+            <span>
+              {stats.subjectCount} môn học / {stats.examCount} đề luyện tập
+            </span>
+          </footer>
         </section>
-      </section>
+      </div>
+    </AppFrame>
+  );
+}
+
+function AppFrame({ children, onHome }: any) {
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
+        <div className="app-header-inner mx-auto flex h-18 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={onHome}
+            className="flex items-center gap-3 rounded-lg text-left focus-visible:ring-3 focus-visible:ring-primary/50 focus-visible:outline-none"
+          >
+            <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GraduationCap size={24} />
+            </span>
+            <span>
+              <span className="block text-base font-semibold text-foreground">Thi thử</span>
+              <span className="block text-xs text-muted-foreground">Không gian luyện tập</span>
+            </span>
+          </button>
+          <ThemeToggle />
+        </div>
+      </header>
+      {children}
     </main>
   );
 }
 
-function ShellHeader({ onHome }: any) {
+function RestartExam({ onRestart, answeredCount }: any) {
+  const [open, setOpen] = useState(false);
   return (
-    <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <button onClick={onHome} className="text-left">
-          <p className="text-sm font-black uppercase tracking-wide text-slate-950">Thi thử</p>
-          <p className="text-xs font-semibold text-slate-500">Nhiều môn - giải thích tức thì</p>
-        </button>
-        <span className="rounded-md bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800">
-          Prototype
-        </span>
-      </div>
-    </header>
+    <>
+      <Button variant="outline" onClick={() => (answeredCount ? setOpen(true) : onRestart())}>
+        <RotateCcw size={16} /> Làm lại đề
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogTitle>Làm lại đề này?</DialogTitle>
+          <DialogDescription>
+            {answeredCount} đáp án đã chọn sẽ được xóa. Câu hỏi và lựa chọn đáp án sẽ được đảo lại
+            cho lần làm mới.
+          </DialogDescription>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Tiếp tục bài hiện tại
+            </Button>
+            <Button
+              onClick={() => {
+                setOpen(false);
+                onRestart();
+              }}
+            >
+              <RotateCcw size={16} /> Làm lại
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
 function Metric({ label, value }: any) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
+    <div className="rounded-lg border border-border bg-muted/40 p-3">
+      <p className="text-xs font-semibold uppercase tracking-normal text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-1 text-2xl font-black tabular-nums text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function QuestionGrid({ compact = false, questions, answers, currentIndex, onPick }: any) {
+  return (
+    <div className={`grid gap-2 ${compact ? "grid-cols-5" : "grid-cols-5 sm:grid-cols-10"}`}>
+      {questions.map((question: any, index: number) => {
+        const answered = isQuestionAnswered(question, answers);
+        const correct = isQuestionCorrect(question, answers);
+        const isCurrent = index === currentIndex;
+        const className = isCurrent
+          ? "border-primary bg-primary text-primary-foreground"
+          : answered
+            ? correct
+              ? "border-emerald-400/40 bg-emerald-400/15 text-emerald-700 dark:text-emerald-200"
+              : "border-rose-400/40 bg-rose-400/15 text-rose-700 dark:text-rose-200"
+            : "border-border bg-muted/40 text-muted-foreground";
+
+        return (
+          <button
+            key={question.id}
+            aria-current={isCurrent ? "step" : undefined}
+            aria-label={`Câu ${index + 1}, ${
+              answered ? (correct ? "đúng" : "sai") : "chưa trả lời"
+            }`}
+            onClick={() => onPick(index)}
+            className={`h-9 rounded-lg border text-sm font-black tabular-nums transition-colors focus-visible:ring-3 focus-visible:ring-primary/50 focus-visible:outline-none ${className}`}
+          >
+            {index + 1}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
 function ReviewList({ exam, answers }: any) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-xl font-bold">Xem lại toàn bộ đề</h2>
+    <section className="rounded-lg border border-border bg-card p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-black text-foreground">Xem lại toàn bộ đề</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            So sánh đáp án đã chọn với đáp án đúng.
+          </p>
+        </div>
+        <Badge variant="outline" className="border-border text-muted-foreground">
+          {exam.questions.length} câu
+        </Badge>
+      </div>
+
       <div className="mt-4 grid gap-3">
         {exam.questions.map((question: any, index: number) => {
-          const selected = question.options.find(
+          const selected = question.options?.find(
             (option: any) => option.id === answers[question.id],
           );
-          const correct = question.options.find(
+          const correct = question.options?.find(
             (option: any) => option.id === question.correctOptionId,
           );
-          const isCorrect = selected?.id === correct?.id;
+          const isCorrect = isQuestionCorrect(question, answers);
           return (
-            <article
-              key={question.id}
-              className="rounded-lg border border-slate-200 bg-slate-50 p-4"
-            >
+            <article key={question.id} className="rounded-lg border border-border bg-muted/40 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <h3 className="font-bold">Câu {index + 1}</h3>
-                <span
-                  className={`rounded-md px-2 py-1 text-xs font-bold ${
-                    isCorrect ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"
-                  }`}
+                <h3 className="font-black text-foreground">Câu {index + 1}</h3>
+                <Badge
+                  variant="outline"
+                  className={
+                    isCorrect
+                      ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-700 dark:text-emerald-300"
+                      : "border-rose-400/40 bg-rose-400/10 text-rose-700 dark:text-rose-300"
+                  }
                 >
                   {isCorrect ? "Đúng" : "Sai"}
-                </span>
+                </Badge>
               </div>
-              <p className="mt-2 leading-7 text-slate-800">{question.prompt}</p>
-              <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
-                <p className="rounded-md bg-white p-3">
-                  Bạn chọn: <strong>{selected ? selected.text : "Chưa chọn"}</strong>
-                </p>
-                <p className="rounded-md bg-white p-3">
-                  Đáp án đúng: <strong>{correct?.text}</strong>
-                </p>
-              </div>
-              <p className="mt-3 whitespace-pre-line rounded-md bg-white p-3 text-sm leading-6 text-slate-700">
-                {question.explanation}
-              </p>
+              <p className="mt-2 leading-7 text-foreground">{question.prompt}</p>
+              {question.parts ? (
+                <div className="mt-4 space-y-4">
+                  {question.parts.map((part: any) => (
+                    <div className="border-t border-border pt-3" key={part.id}>
+                      <h4 className="font-semibold">{part.prompt}</h4>
+                      <p className="mt-2 text-sm">
+                        Bạn chọn:{" "}
+                        {part.options.find((option: any) => option.id === answers[part.id])?.text ||
+                          "Chưa chọn"}
+                      </p>
+                      <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                        Đáp án đúng:{" "}
+                        {
+                          part.options.find((option: any) => option.id === part.correctOptionId)
+                            ?.text
+                        }
+                      </p>
+                      <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                        {part.explanation}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
+                    <p className="rounded-lg border border-border bg-card p-3 text-muted-foreground">
+                      Bạn chọn:{" "}
+                      <strong className="text-foreground">
+                        {selected ? selected.text : "Chưa chọn"}
+                      </strong>
+                    </p>
+                    <p className="rounded-lg border border-border bg-card p-3 text-muted-foreground">
+                      Đáp án đúng: <strong className="text-foreground">{correct?.text}</strong>
+                    </p>
+                  </div>
+                  <p className="mt-3 whitespace-pre-line rounded-lg border border-border bg-card p-3 text-sm leading-6 text-muted-foreground">
+                    {question.explanation}
+                  </p>
+                </>
+              )}
             </article>
           );
         })}
       </div>
     </section>
+  );
+}
+
+function AnswerBlock({ question, selectedAnswer, onChoose, compact = false }: any) {
+  const isAnswered = Boolean(selectedAnswer);
+  const correctOption = question.options.find(
+    (option: any) => option.id === question.correctOptionId,
+  );
+  if (compact)
+    return (
+      <div className="matching-answer">
+        <select
+          aria-label={`Đáp án cho ${question.prompt}`}
+          disabled={isAnswered}
+          value={selectedAnswer || ""}
+          onChange={(event) => onChoose(event.target.value)}
+        >
+          <option value="" disabled>
+            Chọn đáp án
+          </option>
+          {question.options.map((option: any) => (
+            <option key={option.id} value={option.id}>
+              {option.text}
+            </option>
+          ))}
+        </select>
+        {isAnswered && (
+          <p
+            role="status"
+            aria-live="polite"
+            className={
+              selectedAnswer === question.correctOptionId
+                ? "text-emerald-700 dark:text-emerald-300"
+                : "text-rose-700 dark:text-rose-300"
+            }
+          >
+            {selectedAnswer === question.correctOptionId
+              ? "✓ Chính xác"
+              : `✕ Chưa đúng · Đáp án: ${correctOption.text}`}
+          </p>
+        )}
+        {isAnswered && <p className="text-sm text-muted-foreground">{question.explanation}</p>}
+      </div>
+    );
+  return (
+    <>
+      {" "}
+      <div className="grid gap-3">
+        {question.options.map((option: any, optionIndex: number) => {
+          const isSelected = selectedAnswer === option.id;
+          const isCorrect = option.id === question.correctOptionId;
+          const stateClass = !isAnswered
+            ? "border-border bg-muted/40 text-foreground hover:border-primary/70 hover:bg-primary/10"
+            : isCorrect
+              ? "border-emerald-400 bg-emerald-400/15 text-emerald-800 dark:text-emerald-100"
+              : isSelected
+                ? "border-rose-400 bg-rose-400/15 text-rose-800 dark:text-rose-100"
+                : "border-border bg-muted/30 text-muted-foreground";
+
+          return (
+            <button
+              key={option.id}
+              disabled={isAnswered}
+              onClick={() => onChoose(option.id)}
+              className={`answer-choice flex min-h-14 w-full items-start gap-3 rounded-lg border p-4 text-left transition-colors focus-visible:ring-3 focus-visible:ring-primary/50 focus-visible:outline-none disabled:cursor-default ${stateClass}`}
+            >
+              <span
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-black ${
+                  isAnswered && isCorrect
+                    ? "bg-emerald-300 text-emerald-950"
+                    : isAnswered && isSelected
+                      ? "bg-rose-300 text-rose-950"
+                      : "bg-muted text-foreground"
+                }`}
+              >
+                {String.fromCharCode(65 + optionIndex)}
+              </span>
+              <span className="flex-1 text-base leading-7">{option.text}</span>
+              {isAnswered && isCorrect ? (
+                <CircleCheck className="mt-1 shrink-0" size={20} />
+              ) : isAnswered && isSelected ? (
+                <CircleX className="mt-1 shrink-0" size={20} />
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
+      {isAnswered ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`rounded-lg border p-4 ${
+            selectedAnswer === question.correctOptionId
+              ? "border-emerald-400/40 bg-emerald-400/10"
+              : "border-rose-400/40 bg-rose-400/10"
+          }`}
+        >
+          <p className="font-bold text-foreground">
+            {selectedAnswer === question.correctOptionId ? "Chính xác" : "Chưa đúng"} · Đáp án đúng
+            là{" "}
+            {String.fromCharCode(
+              65 +
+                question.options.findIndex((option: any) => option.id === question.correctOptionId),
+            )}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">{correctOption?.text}</p>
+          <Separator className="my-3 bg-border" />
+          <p className="mb-2 text-sm font-semibold text-muted-foreground">Giải thích</p>
+          <p className="whitespace-pre-line leading-7 text-foreground">{question.explanation}</p>
+        </div>
+      ) : null}
+    </>
   );
 }
