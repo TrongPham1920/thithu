@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mock Exam Design"
+  short_description: "UI taste rules for the mock exam app"
+  default_prompt: "Use $frontend-ai-design to polish quiz screens, answer feedback, result review, spacing, and responsive layout."

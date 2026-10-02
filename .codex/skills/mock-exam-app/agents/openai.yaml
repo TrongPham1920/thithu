@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mock Exam App"
+  short_description: "Project rules for the Vietnamese mock exam app"
+  default_prompt: "Use $mock-exam-app to build or refine quiz flow, review screens, exam data, or UI in this Next.js project."
