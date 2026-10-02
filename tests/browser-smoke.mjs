@@ -15,6 +15,15 @@ try {
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.waitForTimeout(100);
+    const subjectSpacing = await page.evaluate(() => {
+      const tabs = document.querySelector(".subject-tabs").getBoundingClientRect();
+      const section = document.querySelector(".exam-section").getBoundingClientRect();
+      return section.top - tabs.bottom;
+    });
+    assert.ok(
+      subjectSpacing >= 0 && subjectSpacing <= 16,
+      `Subject spacing at ${width}: ${subjectSpacing}`,
+    );
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
       false,
