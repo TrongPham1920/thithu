@@ -1,6 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { shuffle, createAdaptiveExam, getWeakTopics, recordTopicResult } from "@/models/practice";
+import {
+  getPracticeProgress,
+  getServerPracticeProgress,
+  subscribePracticeProgress,
+  subscribeReady,
+  getClientReady,
+  getServerReady,
+  savePracticeProgress,
+} from "@/services/practiceProgressService";
 import { isQuestionAnswered, isQuestionCorrect, calculateExamScore } from "@/models/exam";
 import {
   getCatalogStats,
@@ -10,10 +20,7 @@ import {
 } from "@/services/examCatalogService";
 
 function shuffleItems(items: any[]) {
-  return [...items]
-    .map((item) => ({ item, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ item }) => item);
+  return shuffle(items);
 }
 
 function prepareExam(exam: any) {
@@ -46,6 +53,13 @@ export function useExamController() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<any>({});
   const [attemptNo, setAttemptNo] = useState(1);
+  const topicProgress = useSyncExternalStore(
+    subscribePracticeProgress,
+    getPracticeProgress,
+    getServerPracticeProgress,
+  );
+  const progressReady = useSyncExternalStore(subscribeReady, getClientReady, getServerReady);
+  const [storageFailed, setStorageFailed] = useState(false);
 
   const selectedSubject = useMemo(() => getSubjectById(selectedSubjectId), [selectedSubjectId]);
 
@@ -60,8 +74,10 @@ export function useExamController() {
     const owner = subjects.find((subject: any) =>
       subject.exams.some((item: any) => item.id === exam.id),
     );
-    if (owner) setSelectedSubjectId(owner.id);
-    setActiveExam(prepareExam(exam));
+    setSelectedSubjectId(exam.subjectId || owner?.id || selectedSubjectId);
+    setActiveExam(
+      prepareExam({ ...exam, subjectId: exam.subjectId || owner?.id || selectedSubjectId }),
+    );
     setAnswers({});
     setCurrentIndex(0);
     setAttemptNo((value) => value + 1);
@@ -69,6 +85,15 @@ export function useExamController() {
   }
 
   function retryActiveExam() {
+    if (activeExam?.mode === "adaptive") {
+      const subject = getSubjectById(activeExam.subjectId);
+      startExam(createAdaptiveExam(subject, topicProgress[subject.id] || {}));
+      return;
+    }
+    if (activeExam?.mode === "wrong") {
+      startExam(activeExam);
+      return;
+    }
     const owner = subjects.find((subject: any) =>
       subject.exams.some((exam: any) => exam.id === activeExam?.sourceExamId),
     );
@@ -77,6 +102,11 @@ export function useExamController() {
   }
 
   function resumeActiveExam() {
+    if (activeExam?.subjectId) {
+      setSelectedSubjectId(activeExam.subjectId);
+      setScreen("exam");
+      return;
+    }
     const owner = subjects.find((subject: any) =>
       subject.exams.some((exam: any) => exam.id === activeExam?.sourceExamId),
     );
@@ -88,13 +118,52 @@ export function useExamController() {
     startExam(pickRandomExam(selectedSubject.exams));
   }
 
+  function startAdaptivePractice() {
+    const subject =
+      activeExam && screen !== "home" ? getSubjectById(activeExam.subjectId) : selectedSubject;
+    const exam = createAdaptiveExam(subject, topicProgress[subject.id] || {});
+    if (exam.questions.length) startExam(exam);
+  }
+
+  function retryWrongQuestions() {
+    const questions = activeExam.questions.filter((q: any) => !isQuestionCorrect(q, answers));
+    if (!questions.length) return;
+    startExam({
+      id: `wrong-${activeExam.sourceExamId}`,
+      mode: "wrong",
+      subjectId: activeExam.subjectId,
+      title: "Luyện lại câu sai",
+      source: activeExam.title,
+      duration: null,
+      questions,
+    });
+  }
+
   function chooseAnswer(optionId: string, partId?: string) {
+    if (!progressReady) return;
     const part = partId
       ? currentQuestion?.parts?.find((item: any) => item.id === partId)
       : currentQuestion;
     if (!part || answers[part.id] || !part.options.some((option: any) => option.id === optionId))
       return;
-    setAnswers((value: any) => ({ ...value, [part.id]: optionId }));
+    const nextAnswers = { ...answers, [part.id]: optionId };
+    setAnswers(nextAnswers);
+    if (
+      isQuestionAnswered(currentQuestion, nextAnswers) &&
+      progressReady &&
+      !currentQuestion.requiresImage
+    ) {
+      const subjectId = activeExam.subjectId;
+      const nextProgress = {
+        ...topicProgress,
+        [subjectId]: recordTopicResult(
+          topicProgress[subjectId] || {},
+          currentQuestion.topic,
+          isQuestionCorrect(currentQuestion, nextAnswers),
+        ),
+      };
+      setStorageFailed(!savePracticeProgress(nextProgress));
+    }
   }
 
   function goNext() {
@@ -131,6 +200,8 @@ export function useExamController() {
       setSelectedSubjectId,
       startExam,
       startRandomExam,
+      startAdaptivePractice,
+      retryWrongQuestions,
     },
     state: {
       activeExam,
@@ -147,6 +218,9 @@ export function useExamController() {
       selectedSubjectId,
       subjects,
       stats: getCatalogStats(),
+      weakTopics: getWeakTopics(selectedSubject, topicProgress[selectedSubjectId] || {}),
+      progressReady,
+      storageFailed,
     },
   };
 }

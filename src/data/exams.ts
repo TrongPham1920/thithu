@@ -1,4 +1,7 @@
 import { it005Exam02 } from "./it005-exam-02";
+import { networkExamTopics } from "@/models/practice";
+import { it004ReviewExam } from "./it004-review";
+import { it012Exam01 } from "./it012-exam-01";
 
 export const subjects: any[] = [
   {
@@ -441,4 +444,63 @@ export const subjects: any[] = [
       it005Exam02,
     ],
   },
+  {
+    id: "co-so-du-lieu",
+    code: "IT004",
+    name: "Cơ sở dữ liệu",
+    description: "Bộ ôn tập lý thuyết và syntax từ tài liệu IT004.",
+    exams: [it004ReviewExam],
+  },
+  {
+    id: "cau-truc-may-tinh-2",
+    code: "IT012",
+    name: "Cấu trúc máy tính",
+    description: "Bộ ôn tập Tổ chức & Cấu trúc máy tính II.",
+    exams: [it012Exam01],
+  },
 ];
+
+for (const exam of subjects[0].exams) {
+  exam.questions = exam.questions.map((question: any, index: any) => ({
+    ...question,
+    topic:
+      exam.id === "it005-thi-thu-02" && index === 14 ? "NETWORK_LAYER" : networkExamTopics[index],
+  }));
+}
+
+it004ReviewExam.questions = it004ReviewExam.questions.map((question: any) => ({
+  ...question,
+  topic: databaseTopic(question),
+}));
+
+function databaseTopic(question: any) {
+  const rules: any = [
+    ["DB_NORMALIZATION", /chuẩn hóa|chuan hoa|bcnf|[12345]nf/i],
+    ["DB_DEPENDENCY", /phụ thuộc hàm|bao đóng|armstrong/i],
+    ["DB_ERD", /erd|thực thể|entity|thuộc tính.*đa trị/i],
+    ["DB_KEYS", /khóa|superkey|primary key|foreign key|candidate key/i],
+    ["DB_INTEGRITY", /ràng buộc|toàn vẹn|constraint/i],
+    ["DB_SQL_SERVER", /trigger|procedure|sql server|stored|transaction|giao tác|commit|rollback/i],
+    ["DB_SQL", /\bsql\b|create |alter |drop |insert |delete |update |select |grant |revoke /i],
+    ["DB_RELATIONAL", /quan hệ|tuple|domain|relation/i],
+    ["DB_ARCHITECTURE", /hệ quản trị|quản trị csdl|kiến trúc|cơ sở dữ liệu/i],
+  ];
+  for (const [topic, pattern] of rules) if (pattern.test(question.prompt)) return topic;
+  return "DB_GENERAL";
+}
+
+it012Exam01.questions = it012Exam01.questions.map((q: any) => ({
+  ...q,
+  topic: computerTopic(q.prompt),
+}));
+function computerTopic(prompt: any) {
+  const rules: any = [
+    ["CA_PIPELINE", /pipeline|hazard|forwarding|stall/i],
+    ["CA_MEMORY", /cache|bộ nhớ|memory|lưu trữ/i],
+    ["CA_LOGIC", /flip.?flop|latch|cổng|logic|clock/i],
+    ["CA_DATAPATH", /datapath|critical path|control|đường đi|sign.extend/i],
+    ["CA_ENCODING", /nhị phân|opcode|shamt|format|mã máy|mã lệnh/i],
+    ["CA_MIPS", /mips|thanh ghi|lệnh|pc|alu/i],
+  ];
+  return rules.find(([, pattern]: any) => pattern.test(prompt))?.[0] || "CA_GENERAL";
+}

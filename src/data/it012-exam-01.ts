@@ -1,0 +1,1515 @@
+export const it012Exam01: any = {
+  id: "it012-thi-thu-01",
+  title: "Bài thi thử IT012",
+  source: "Bộ câu hỏi ôn tập Tổ chức & Cấu trúc máy tính II",
+  questions: [
+    {
+      id: "it012-q1",
+      prompt:
+        "Công đoạn máy tính sử dụng nội dung trong thanh ghi Program Counter (PC) để tìm nạp lệnh từ bộ nhớ lệnh thuộc công đoạn nào dưới đây?",
+      options: [
+        {
+          id: "a",
+          text: "Instruction Decode & Operand Fetch",
+        },
+        {
+          id: "b",
+          text: "Instruction Fetch",
+        },
+        {
+          id: "c",
+          text: "Memory Access",
+        },
+        {
+          id: "d",
+          text: "Result Write",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "PC cung cấp địa chỉ cho Instruction Memory để tìm nạp lệnh.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q2",
+      prompt: "Chọn mô tả đúng nhất cho thiết bị lưu trữ được ký hiệu như hình trong đề?",
+      options: [
+        {
+          id: "a",
+          text: "Flipflop D, kích cạnh xuống",
+        },
+        {
+          id: "b",
+          text: "Latch D, tích cực mức cao",
+        },
+        {
+          id: "c",
+          text: "Flipflop D, kích cạnh lên",
+        },
+        {
+          id: "d",
+          text: "Latch D, tích cực mức thấp",
+        },
+      ],
+      correctOptionId: "c",
+      explanation:
+        "Ký hiệu tam giác ở chân clock và không có bubble biểu diễn D flip-flop kích cạnh lên.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q3",
+      prompt:
+        "Hãy cho biết đường nào trong các đường sau là critical path (đường đi dài nhất của dữ liệu) của lệnh “slt” với datapath như trong Hình 1?",
+      options: [
+        {
+          id: "a",
+          text: "I-Mem, Mux, Regs, Mux, ALU, Mux, Regs",
+        },
+        {
+          id: "b",
+          text: "I-Mem, Mux, Regs, ALU, D-mem, Mux, Regs",
+        },
+        {
+          id: "c",
+          text: "I-Mem, Mux, Regs, ALU, Mux, D-Mem, Regs",
+        },
+        {
+          id: "d",
+          text: "I-Mem, Regs, Mux, ALU, Mux, Mux, Regs",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "slt là lệnh R-format và không truy cập Data Memory.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q4",
+      prompt:
+        "Trong kiến trúc MIPS, thanh ghi nào có nhiệm vụ lưu trữ địa chỉ của lệnh tiếp theo cần thực thi?",
+      options: [
+        {
+          id: "a",
+          text: "$s0",
+        },
+        {
+          id: "b",
+          text: "$ra",
+        },
+        {
+          id: "c",
+          text: "$at",
+        },
+        {
+          id: "d",
+          text: "$pc",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "PC lưu địa chỉ của lệnh tiếp theo.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q5",
+      prompt: "Cho câu lệnh “sll $s3,$s5,15” thì biểu diễn số nhị phân của trường shamt là?",
+      options: [
+        {
+          id: "a",
+          text: "10011",
+        },
+        {
+          id: "b",
+          text: "10101",
+        },
+        {
+          id: "c",
+          text: "01111",
+        },
+        {
+          id: "d",
+          text: "00000",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "15 ở dạng nhị phân 5 bit là 01111.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q6",
+      prompt: "Khối “Sign-extend” trong datapath MIPS có chức năng gì?",
+      options: [
+        {
+          id: "a",
+          text: "Mở rộng một số có dấu từ 16-bit thành 32-bit",
+        },
+        {
+          id: "b",
+          text: "Mở rộng một số không dấu từ 16-bit thành 32-bit",
+        },
+        {
+          id: "c",
+          text: "Thực hiện phép cộng giữa hai số 32-bit",
+        },
+        {
+          id: "d",
+          text: "Thực hiện phép dịch trái một số 32-bit",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Sign-extend mở rộng số có dấu 16 bit thành 32 bit và giữ nguyên dấu.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q7",
+      prompt: "Giá trị thập phân của số nhị phân 10111011₂ là?",
+      options: [
+        {
+          id: "a",
+          text: "167₁₀",
+        },
+        {
+          id: "b",
+          text: "177₁₀",
+        },
+        {
+          id: "c",
+          text: "187₁₀",
+        },
+        {
+          id: "d",
+          text: "197₁₀",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "10111011₂ = 128 + 32 + 16 + 8 + 2 + 1 = 187.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q8",
+      prompt: "Khối ALU Control trong datapath ở Hình 1 có bao nhiêu bits đầu vào và đầu ra?",
+      options: [
+        {
+          id: "a",
+          text: "6 bits vào, 4 bits ra",
+        },
+        {
+          id: "b",
+          text: "6 bits vào, 6 bits ra",
+        },
+        {
+          id: "c",
+          text: "8 bits vào, 6 bits ra",
+        },
+        {
+          id: "d",
+          text: "8 bits vào, 4 bits ra",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "ALU Control nhận ALUOp 2 bit và funct 6 bit, tổng 8 bit vào và 4 bit ra.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q9",
+      prompt:
+        "Cho thời gian trễ: I-Mem 250ps, Add 110ps, Mux 50ps, ALU 170ps, Regs 210ps, D-Mem 260ps. Thời gian trễ lớn nhất của lệnh “beq” theo datapath Hình 1?",
+      options: [
+        {
+          id: "a",
+          text: "740 ps",
+        },
+        {
+          id: "b",
+          text: "690 ps",
+        },
+        {
+          id: "c",
+          text: "730 ps",
+        },
+        {
+          id: "d",
+          text: "680 ps",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Theo đường dữ liệu beq trong datapath của đề, tổng delay lớn nhất là 680 ps.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q10",
+      prompt: "Chọn biểu thức logic phù hợp với mạch được biểu diễn trong hình?",
+      options: [
+        {
+          id: "a",
+          text: "F = (A̅B)+(CDE)",
+        },
+        {
+          id: "b",
+          text: "F = (A̅B)(C + D + E)",
+        },
+        {
+          id: "c",
+          text: "F = (A̅ + B)(CDE)",
+        },
+        {
+          id: "d",
+          text: "F = (A̅ + B)(C + D + E)",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Hai nhánh tạo (A̅+B) và (C+D+E), sau đó AND với nhau.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q11",
+      prompt: "Chọn đáp án đúng cho kết quả biểu thức tương ứng bìa K trong đề?",
+      options: [
+        {
+          id: "a",
+          text: "F(x,y,z) = x̅z + z + xy̅z̅",
+        },
+        {
+          id: "b",
+          text: "F(x,y,z) = x̅z + yz + y̅z̅",
+        },
+        {
+          id: "c",
+          text: "F(x,y,z) = x̅z + yz + xy̅z̅",
+        },
+        {
+          id: "d",
+          text: "Phương án D theo hình gốc",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "Kết quả rút gọn tương ứng là x̅z + yz + xy̅z̅.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q12",
+      prompt: "Khi thực hiện lệnh nào dưới đây thì tín hiệu MemRead = 1?",
+      options: [
+        {
+          id: "a",
+          text: "Lệnh beq",
+        },
+        {
+          id: "b",
+          text: "Lệnh add",
+        },
+        {
+          id: "c",
+          text: "Lệnh lw",
+        },
+        {
+          id: "d",
+          text: "Lệnh sw",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "lw cần đọc dữ liệu từ Data Memory.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q13",
+      prompt:
+        "Để phân biệt các lệnh R-Format với nhau, bộ điều khiển ALU dựa vào trường nào trong định dạng lệnh?",
+      options: [
+        {
+          id: "a",
+          text: "Opcode",
+        },
+        {
+          id: "b",
+          text: "Function",
+        },
+        {
+          id: "c",
+          text: "Immediate",
+        },
+        {
+          id: "d",
+          text: "Shamt",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Trường funct xác định phép toán cụ thể của lệnh R-format.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q14",
+      prompt: "Với datapath như Hình 1, khối Instruction Memory thực hiện chức năng gì?",
+      options: [
+        {
+          id: "a",
+          text: "Xuất ra nội dung cộng 2 thanh ghi",
+        },
+        {
+          id: "b",
+          text: "Nhận địa chỉ lệnh từ thanh ghi PC và xuất ra 32 bits mã máy tương ứng",
+        },
+        {
+          id: "c",
+          text: "Đọc và xuất nội dung 1 thanh ghi",
+        },
+        {
+          id: "d",
+          text: "Ghi dữ liệu vào thanh ghi đích",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Instruction Memory nhận địa chỉ từ PC và trả về lệnh máy 32 bit.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q15",
+      prompt:
+        "Với datapath như Hình 1, giá trị tín hiệu “ALU control” bằng 0110 trong trường hợp nào?",
+      options: [
+        {
+          id: "a",
+          text: "beq $s1, $s2, label",
+        },
+        {
+          id: "b",
+          text: "add $s1, $s2, $s3",
+        },
+        {
+          id: "c",
+          text: "lw $s1, 4($s2)",
+        },
+        {
+          id: "d",
+          text: "sw $s1, 10($s2)",
+        },
+      ],
+      correctOptionId: "a",
+      explanation:
+        "0110 tương ứng phép SUB; beq dùng phép trừ để kiểm tra hai thanh ghi có bằng nhau.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q16",
+      prompt: "Sắp xếp các bộ nhớ có tốc độ truy xuất chậm dần?",
+      options: [
+        {
+          id: "a",
+          text: "Register > RAM > Cache > SSD",
+        },
+        {
+          id: "b",
+          text: "Register > Cache > SSD > RAM",
+        },
+        {
+          id: "c",
+          text: "Cache > Register > RAM > SSD",
+        },
+        {
+          id: "d",
+          text: "Register > Cache > RAM > SSD",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Thứ tự từ nhanh đến chậm: Register → Cache → RAM → SSD.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q17",
+      prompt: "Trong ngữ cảnh máy tính, “CPU” là viết tắt của từ gì?",
+      options: [
+        {
+          id: "a",
+          text: "Computer Processing Unit",
+        },
+        {
+          id: "b",
+          text: "Central Processor Unit",
+        },
+        {
+          id: "c",
+          text: "Central Processing Unit",
+        },
+        {
+          id: "d",
+          text: "Control Processing Unit",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "CPU = Central Processing Unit.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q18",
+      prompt: "Câu lệnh assembly MIPS “addi $s3, $s5, 8” có định dạng nào?",
+      options: [
+        {
+          id: "a",
+          text: "opcode (6bits) - rs(5bits) - rt(5bits) - const/address(16bits)",
+        },
+        {
+          id: "b",
+          text: "opcode (6bits) - address(26bits)",
+        },
+        {
+          id: "c",
+          text: "opcode (6bits) - rd(5bits) - rs(5bits) - rt(5bits) - shamt(5bits) - funct(6bits)",
+        },
+        {
+          id: "d",
+          text: "opcode (6bits) - rs(5bits) - rt(5bits) - rd(5bits) - shamt(5bits) - funct(6bits)",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "addi là lệnh I-format.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q19",
+      prompt: "Mã máy nào biểu diễn “slt $t2, $t0, $t7”?",
+      options: [
+        {
+          id: "a",
+          text: "0x010F502A",
+        },
+        {
+          id: "b",
+          text: "0x010E502A",
+        },
+        {
+          id: "c",
+          text: "0x010F402A",
+        },
+        {
+          id: "d",
+          text: "0x010E402A",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Mã máy đúng là 0x010F502A.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q20",
+      prompt: "Mã máy nào biểu diễn “andi $s0, $s7, 123”?",
+      options: [
+        {
+          id: "a",
+          text: "0x32E0005B",
+        },
+        {
+          id: "b",
+          text: "0x32E0007B",
+        },
+        {
+          id: "c",
+          text: "0x32F0005B",
+        },
+        {
+          id: "d",
+          text: "0x32F0007B",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "123₁₀ = 0x007B; mã máy tương ứng là 0x32F0007B.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q21",
+      prompt: "Assembly MIPS nào biểu diễn 0x02D7A024?",
+      options: [
+        {
+          id: "a",
+          text: "and $s4, $s6, $s7",
+        },
+        {
+          id: "b",
+          text: "addi $s4, $s5, $s7",
+        },
+        {
+          id: "c",
+          text: "add $s5, $s6, $s7",
+        },
+        {
+          id: "d",
+          text: "sub $s3, $s6, $s7",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Giải mã R-format cho kết quả and $s4,$s6,$s7.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q22",
+      prompt: "C: a = b - 27, a,b trong $s4,$s2. Assembly tương đương?",
+      options: [
+        {
+          id: "a",
+          text: "addi $s4, $s2, -27",
+        },
+        {
+          id: "b",
+          text: "subi $s4, $s2, 27",
+        },
+        {
+          id: "c",
+          text: "sub $s2, $s4, 10",
+        },
+        {
+          id: "d",
+          text: "add $s4, $s2 -27",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "MIPS không có subi; trừ hằng số dùng addi với immediate âm.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q23",
+      prompt: "Biểu diễn -27 bù 2, 8 bit?",
+      options: [
+        {
+          id: "a",
+          text: "11100101",
+        },
+        {
+          id: "b",
+          text: "11100111",
+        },
+        {
+          id: "c",
+          text: "10111101",
+        },
+        {
+          id: "d",
+          text: "11101101",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "27 = 00011011; đảo bit rồi +1 → 11100101.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q24",
+      prompt: "453₁₀ sang hex?",
+      options: [
+        {
+          id: "a",
+          text: "0x1C5",
+        },
+        {
+          id: "b",
+          text: "0x1B5",
+        },
+        {
+          id: "c",
+          text: "0x1C7",
+        },
+        {
+          id: "d",
+          text: "0x1B7",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "453₁₀ = 0x1C5.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q25",
+      prompt: "243₁₀ sang binary?",
+      options: [
+        {
+          id: "a",
+          text: "11010011₂",
+        },
+        {
+          id: "b",
+          text: "11110011₂",
+        },
+        {
+          id: "c",
+          text: "11111011₂",
+        },
+        {
+          id: "d",
+          text: "11100011₂",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "243 = 128+64+32+16+2+1 = 11110011₂.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q26",
+      prompt: "K-map lân cận 4 rút gọn bao nhiêu biến?",
+      options: [
+        {
+          id: "a",
+          text: "1",
+        },
+        {
+          id: "b",
+          text: "2",
+        },
+        {
+          id: "c",
+          text: "3",
+        },
+        {
+          id: "d",
+          text: "4",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Nhóm 4 = 2² ô nên loại được 2 biến.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q27",
+      prompt: "Bộ nhớ nào không lưu dữ liệu khi mất điện (volatility)?",
+      options: [
+        {
+          id: "a",
+          text: "SSD",
+        },
+        {
+          id: "b",
+          text: "RAM",
+        },
+        {
+          id: "c",
+          text: "ROM",
+        },
+        {
+          id: "d",
+          text: "HDD",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "RAM là bộ nhớ volatile.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q28",
+      prompt: "Register thuộc thành phần nào?",
+      options: [
+        {
+          id: "a",
+          text: "Input",
+        },
+        {
+          id: "b",
+          text: "Processor",
+        },
+        {
+          id: "c",
+          text: "Main Memory",
+        },
+        {
+          id: "d",
+          text: "Output",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Register nằm trong bộ xử lý.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q29",
+      prompt: "MUX có chức năng gì?",
+      options: [
+        {
+          id: "a",
+          text: "Lựa chọn 1 trong những ngõ vào dữ liệu để gửi tới ngõ ra dựa vào ngõ vào lựa chọn",
+        },
+        {
+          id: "b",
+          text: "Lưu nhiều bit thông tin để ALU sử dụng",
+        },
+        {
+          id: "c",
+          text: "Phân chia 1 ngõ vào dữ liệu để gửi tới nhiều ngõ ra dựa vào ngõ vào lựa chọn",
+        },
+        {
+          id: "d",
+          text: "Kết hợp nhiều ngõ vào thành nhiều ngõ ra dựa vào ngõ vào lựa chọn",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Multiplexer chọn một trong nhiều input dựa trên tín hiệu select.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q30",
+      prompt: "Tầm biểu diễn số bù 2 8 bit?",
+      options: [
+        {
+          id: "a",
+          text: "0..255",
+        },
+        {
+          id: "b",
+          text: "-128..+127",
+        },
+        {
+          id: "c",
+          text: "-255..256",
+        },
+        {
+          id: "d",
+          text: "-128..+128",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Signed two's complement 8 bit có miền -128 đến +127.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q31",
+      prompt: "Chọn mô tả đúng nhất cho mạch ký hiệu có 4 input D0-D3, select S1,S0 và output Y?",
+      options: [
+        {
+          id: "a",
+          text: "Multiplexer",
+        },
+        {
+          id: "b",
+          text: "Decoder",
+        },
+        {
+          id: "c",
+          text: "Encoder",
+        },
+        {
+          id: "d",
+          text: "Comparator",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Đây là MUX 4:1.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q32",
+      prompt: "Biểu diễn bù 2 8-bit của -59?",
+      options: [
+        {
+          id: "a",
+          text: "10100111",
+        },
+        {
+          id: "b",
+          text: "00111011",
+        },
+        {
+          id: "c",
+          text: "11000101",
+        },
+        {
+          id: "d",
+          text: "11000011",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "59 = 00111011; đảo → 11000100; +1 → 11000101.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q33",
+      prompt: "Decimal của signed two’s complement 8-bit 10110101?",
+      options: [
+        {
+          id: "a",
+          text: "-72",
+        },
+        {
+          id: "b",
+          text: "-73",
+        },
+        {
+          id: "c",
+          text: "-75",
+        },
+        {
+          id: "d",
+          text: "-71",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "Đảo +1 cho độ lớn 75 nên giá trị là -75.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q34",
+      prompt: "Cổng nào output=1 khi có ít nhất một trong hai input=1?",
+      options: [
+        {
+          id: "a",
+          text: "AND",
+        },
+        {
+          id: "b",
+          text: "OR",
+        },
+        {
+          id: "c",
+          text: "NOR",
+        },
+        {
+          id: "d",
+          text: "NAND",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Đây là định nghĩa của cổng OR.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q35",
+      prompt: "K-map lân cận 16 rút gọn bao nhiêu biến?",
+      options: [
+        {
+          id: "a",
+          text: "1",
+        },
+        {
+          id: "b",
+          text: "2",
+        },
+        {
+          id: "c",
+          text: "3",
+        },
+        {
+          id: "d",
+          text: "4",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Nhóm 16 = 2⁴ ô nên loại được 4 biến.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q36",
+      prompt: "Cho chương trình trong đề với $s1=0x2026, $s2=0x2025. Giá trị $s2 sau chương trình?",
+      options: [
+        {
+          id: "a",
+          text: "0x2025",
+        },
+        {
+          id: "b",
+          text: "0x2024",
+        },
+        {
+          id: "c",
+          text: "0x3038",
+        },
+        {
+          id: "d",
+          text: "0x3037",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "$s2<$s1 nên nhảy ELSE; 0x2026 AND 0x2024 = 0x2024.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q37",
+      prompt: "Kết quả cộng signed two’s complement 8-bit 10101011 + 01011011?",
+      options: [
+        {
+          id: "a",
+          text: "00000110",
+        },
+        {
+          id: "b",
+          text: "00111100",
+        },
+        {
+          id: "c",
+          text: "10001010",
+        },
+        {
+          id: "d",
+          text: "00110010",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "-85 + 91 = 6 = 00000110.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q38",
+      prompt: "Chọn biểu thức logic phù hợp mạch hình?",
+      options: [
+        {
+          id: "a",
+          text: "F = AB+(B+C)(B+C)",
+        },
+        {
+          id: "b",
+          text: "F = AB+(B+C)BC",
+        },
+        {
+          id: "c",
+          text: "F = AB+(B+C)+BC",
+        },
+        {
+          id: "d",
+          text: "F = (A+B)+(B+C)BC",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Biểu thức tương ứng mạch trong đề là AB+(B+C)BC.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q39",
+      prompt: "Assembly nào biểu diễn 0x02324022?",
+      options: [
+        {
+          id: "a",
+          text: "sub $t0, $t1, $s2",
+        },
+        {
+          id: "b",
+          text: "sub $t0, $s1, $s2",
+        },
+        {
+          id: "c",
+          text: "sub $s2, $s1, $s7",
+        },
+        {
+          id: "d",
+          text: "or $t5, $t1, $t7",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Giải mã R-format cho sub $t0,$s1,$s2.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q40",
+      prompt: "Công đoạn đọc opcode để xác định kiểu lệnh và chiều dài từng trường trong mã máy?",
+      options: [
+        {
+          id: "a",
+          text: "Instruction Decode & Operand Fetch",
+        },
+        {
+          id: "b",
+          text: "Instruction Fetch",
+        },
+        {
+          id: "c",
+          text: "Memory Access",
+        },
+        {
+          id: "d",
+          text: "Result Write",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Opcode được phân tích trong giai đoạn Instruction Decode.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q41",
+      prompt: "Mạch nào là mạch tổ hợp?",
+      options: [
+        {
+          id: "a",
+          text: "Flip-Flop",
+        },
+        {
+          id: "b",
+          text: "Latch",
+        },
+        {
+          id: "c",
+          text: "Tập thanh ghi",
+        },
+        {
+          id: "d",
+          text: "Đơn vị toán học và logic",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "ALU là mạch tổ hợp.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q42",
+      prompt: "$s0=0x20252026. `srl $t2, $s0, 3`. $t2?",
+      options: [
+        {
+          id: "a",
+          text: "0x04b404c4",
+        },
+        {
+          id: "b",
+          text: "0x04a40404",
+        },
+        {
+          id: "c",
+          text: "0x04a404c4",
+        },
+        {
+          id: "d",
+          text: "0x0404a404",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Dịch phải logic 3 bit cho kết quả 0x0404A404.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q43",
+      prompt: "DRAM thuộc thành phần nào?",
+      options: [
+        {
+          id: "a",
+          text: "Input",
+        },
+        {
+          id: "b",
+          text: "Processor",
+        },
+        {
+          id: "c",
+          text: "Main Memory",
+        },
+        {
+          id: "d",
+          text: "Output",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "DRAM thường được dùng làm bộ nhớ chính.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q44",
+      prompt: "Thanh ghi là?",
+      options: [
+        {
+          id: "a",
+          text: "Thiết bị lưu trữ gồm flipflop nối riêng CLK",
+        },
+        {
+          id: "b",
+          text: "Gồm latch nối chung D",
+        },
+        {
+          id: "c",
+          text: "Gồm latch nối riêng CLK",
+        },
+        {
+          id: "d",
+          text: "Gồm flipflop nối chung CLK",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Một register gồm nhiều flip-flop dùng chung tín hiệu clock.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q45",
+      prompt: "`lw $s3, 32($s2)` với base mảng A trong $s2 dùng để?",
+      options: [
+        {
+          id: "a",
+          text: "Đọc A[8] → $s3",
+        },
+        {
+          id: "b",
+          text: "Đọc A[32] → $s3",
+        },
+        {
+          id: "c",
+          text: "Lưu $s3 → A[8]",
+        },
+        {
+          id: "d",
+          text: "Lưu $s3 → A[32]",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Một word MIPS là 4 byte; offset 32 byte tương ứng A[8].",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q46",
+      prompt: "Rút gọn `F = ABC + ABC’ + AB’C`?",
+      options: [
+        {
+          id: "a",
+          text: "F = A(B+C)",
+        },
+        {
+          id: "b",
+          text: "F = AB + BC",
+        },
+        {
+          id: "c",
+          text: "F = C(B+A)",
+        },
+        {
+          id: "d",
+          text: "F = B(A+C)",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "ABC+ABC’=AB; sau đó AB+AB’C=A(B+C).",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q47",
+      prompt: "Binary unsigned của 119?",
+      options: [
+        {
+          id: "a",
+          text: "01000101",
+        },
+        {
+          id: "b",
+          text: "01111001",
+        },
+        {
+          id: "c",
+          text: "01110111",
+        },
+        {
+          id: "d",
+          text: "01001011",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "119 = 64+32+16+4+2+1 = 01110111.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q48",
+      prompt: "Phát biểu đúng về mạch tổ hợp?",
+      options: [
+        {
+          id: "a",
+          text: "Output thay đổi ngay khi input=1",
+        },
+        {
+          id: "b",
+          text: "Output phụ thuộc input và trạng thái trước",
+        },
+        {
+          id: "c",
+          text: "Lưu 1 bit",
+        },
+        {
+          id: "d",
+          text: "Output thay đổi ngay khi input thay đổi",
+        },
+      ],
+      correctOptionId: "d",
+      explanation: "Mạch tổ hợp phụ thuộc input hiện tại, không lưu trạng thái trước.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q49",
+      prompt: "Decimal unsigned 01101001₂?",
+      options: [
+        {
+          id: "a",
+          text: "125",
+        },
+        {
+          id: "b",
+          text: "135",
+        },
+        {
+          id: "c",
+          text: "105",
+        },
+        {
+          id: "d",
+          text: "155",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "64+32+8+1 = 105.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q50",
+      prompt: "8-bit signed two’s complement của -83?",
+      options: [
+        {
+          id: "a",
+          text: "10101101",
+        },
+        {
+          id: "b",
+          text: "10011011",
+        },
+        {
+          id: "c",
+          text: "10001111",
+        },
+        {
+          id: "d",
+          text: "11100011",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "83=01010011; đảo → 10101100; +1 → 10101101.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q51",
+      prompt: "Tầm unsigned 8-bit?",
+      options: [
+        {
+          id: "a",
+          text: "0..255",
+        },
+        {
+          id: "b",
+          text: "0..127",
+        },
+        {
+          id: "c",
+          text: "-64..63",
+        },
+        {
+          id: "d",
+          text: "-128..127",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "8 bit unsigned có 256 giá trị từ 0 đến 255.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q52",
+      prompt: "Xử lý I/O, quản lý bộ nhớ, lập lịch, chia sẻ tài nguyên thuộc?",
+      options: [
+        {
+          id: "a",
+          text: "Phần cứng",
+        },
+        {
+          id: "b",
+          text: "Phần mềm ứng dụng",
+        },
+        {
+          id: "c",
+          text: "Hệ điều hành",
+        },
+        {
+          id: "d",
+          text: "Trình biên dịch",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "Đây là các nhiệm vụ cơ bản của hệ điều hành.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q53",
+      prompt: "Binary của FAEE₁₆?",
+      options: [
+        {
+          id: "a",
+          text: "1110101111011110",
+        },
+        {
+          id: "b",
+          text: "1110100111011110",
+        },
+        {
+          id: "c",
+          text: "1111101011101110",
+        },
+        {
+          id: "d",
+          text: "1110101011011110",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "F=1111, A=1010, E=1110, E=1110.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q54",
+      prompt: "Mã máy cho `add $t0, $s1, $s2`?",
+      options: [
+        {
+          id: "a",
+          text: "0xAE6A00014",
+        },
+        {
+          id: "b",
+          text: "0x02324020",
+        },
+        {
+          id: "c",
+          text: "0xAE6B00014",
+        },
+        {
+          id: "d",
+          text: "0xAE4B00014",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Đây là lệnh R-format add; mã đúng là 0x02324020.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q55",
+      prompt: "Mã máy cho `lw $t3,-32($t7)`?",
+      options: [
+        {
+          id: "a",
+          text: "0x8DF3FFF0",
+        },
+        {
+          id: "b",
+          text: "0x8DE3FFF0",
+        },
+        {
+          id: "c",
+          text: "0x8DEBFFE0",
+        },
+        {
+          id: "d",
+          text: "0x8EE7FFF0",
+        },
+      ],
+      correctOptionId: "c",
+      explanation: "Immediate -32 ở 16-bit là 0xFFE0.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q56",
+      prompt: "Máy tính nhỏ gọn tích hợp trong máy giặt, xe hơi, điện thoại thuộc nhóm?",
+      options: [
+        {
+          id: "a",
+          text: "Máy tính nhúng",
+        },
+        {
+          id: "b",
+          text: "Supercomputers",
+        },
+        {
+          id: "c",
+          text: "Máy tính cá nhân",
+        },
+        {
+          id: "d",
+          text: "Máy tính bảng",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Đây là embedded computer.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q57",
+      prompt: "`lw $s3, 16($t2)` có định dạng?",
+      options: [
+        {
+          id: "a",
+          text: "opcode (6bits) - rs(5bits) - rt(5bits) - const/address(16bits)",
+        },
+        {
+          id: "b",
+          text: "opcode (6bits) - address(26bits)",
+        },
+        {
+          id: "c",
+          text: "opcode (6bits) - rd(5bits) - rs(5bits) - rt(5bits) - shamt(5bits) - funct(6bits)",
+        },
+        {
+          id: "d",
+          text: "opcode (6bits) - rs(5bits) - rt(5bits) - rd(5bits) - shamt(5bits) - funct(6bits)",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "lw là I-format.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q58",
+      prompt: "Trong các câu lệnh assembly MIPS bên dưới, câu lệnh nào biểu diễn 0x2A480008?",
+      options: [
+        {
+          id: "a",
+          text: "slti $t0, $s2, 8",
+        },
+        {
+          id: "b",
+          text: "lw $t0, 8($s2)",
+        },
+        {
+          id: "c",
+          text: "lw $s2, 8($t0)",
+        },
+        {
+          id: "d",
+          text: "slti $s2, $t0, 8",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Giải mã opcode và các trường thanh ghi cho slti $t0,$s2,8.",
+      requiresImage: true,
+    },
+    {
+      id: "it012-q59",
+      prompt: "Mỗi “half-word” MIPS bao nhiêu bit?",
+      options: [
+        {
+          id: "a",
+          text: "8",
+        },
+        {
+          id: "b",
+          text: "16",
+        },
+        {
+          id: "c",
+          text: "32",
+        },
+        {
+          id: "d",
+          text: "64",
+        },
+      ],
+      correctOptionId: "b",
+      explanation: "Một word MIPS là 32 bit nên half-word là 16 bit.",
+      requiresImage: false,
+    },
+    {
+      id: "it012-q60",
+      prompt: "Khối Sign-extend trong datapath MIPS có chức năng gì?",
+      options: [
+        {
+          id: "a",
+          text: "Mở rộng thêm bit dấu cho số có dấu 16→32",
+        },
+        {
+          id: "b",
+          text: "Mở rộng thêm số 0 vào trước 16→32",
+        },
+        {
+          id: "c",
+          text: "Cộng hai số 32-bit",
+        },
+        {
+          id: "d",
+          text: "Dịch trái số 32-bit",
+        },
+      ],
+      correctOptionId: "a",
+      explanation: "Sign extension sao chép bit dấu để mở rộng số có dấu 16 bit thành 32 bit.",
+      requiresImage: false,
+    },
+  ],
+};

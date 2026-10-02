@@ -5,12 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import {
-  countQuestions,
-  isQuestionAnswered,
-  isQuestionCorrect,
-  answeredQuestionCount,
-} from "@/models/exam";
+import { isQuestionAnswered, isQuestionCorrect, answeredQuestionCount } from "@/models/exam";
 import { ThemeToggle } from "@/components/ThemeControls";
 import { useState, useEffect } from "react";
 import {
@@ -31,16 +26,12 @@ import {
   CircleX,
   ListChecks,
   Library,
-  Network,
-  Search,
   Play,
-  Clock3,
   Eye,
   ChevronDown,
 } from "lucide-react";
 
 export function ExamPracticeView({ controller }: any) {
-  const [search, setSearch] = useState("");
   const { actions, state } = controller;
   const {
     activeExam,
@@ -57,6 +48,9 @@ export function ExamPracticeView({ controller }: any) {
     selectedSubjectId,
     subjects,
     stats,
+    weakTopics,
+    progressReady,
+    storageFailed,
   } = state;
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -70,7 +64,8 @@ export function ExamPracticeView({ controller }: any) {
     setScreen,
     setSelectedSubjectId,
     startExam,
-    startRandomExam,
+    startAdaptivePractice,
+    retryWrongQuestions,
   } = actions;
 
   if (screen === "result" && activeExam) {
@@ -107,6 +102,22 @@ export function ExamPracticeView({ controller }: any) {
                 về thang 10.
               </p>
               <div className="grid gap-2">
+                <Button
+                  onClick={retryWrongQuestions}
+                  disabled={correctCount === activeExam.questions.length}
+                  className="h-11"
+                >
+                  <RotateCcw size={16} /> Luyện lại {activeExam.questions.length - correctCount} câu
+                  sai
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={startAdaptivePractice}
+                  disabled={!progressReady}
+                  className="h-11"
+                >
+                  <Shuffle size={16} /> Luyện chủ đề yếu
+                </Button>
                 <Button onClick={retryActiveExam} className="h-10">
                   <RotateCcw size={16} /> Làm lại và đảo đề
                 </Button>
@@ -205,7 +216,7 @@ export function ExamPracticeView({ controller }: any) {
                     {answeredCount - correctCount} sai
                   </span>
                 </div>
-                <details className="question-map" open>
+                <details className="question-map">
                   <summary className="mb-3 cursor-pointer text-sm font-semibold">
                     <ListChecks className="mr-1 inline" size={16} /> Bảng câu hỏi
                   </summary>
@@ -236,14 +247,20 @@ export function ExamPracticeView({ controller }: any) {
             className="question-panel border-border bg-card shadow-none"
           >
             <CardHeader className="gap-3">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="question-heading flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <Badge className="bg-muted text-foreground" variant="secondary">
                     Câu {currentIndex + 1} / {activeExam.questions.length}
                   </Badge>
-                  <CardTitle className="mt-4 whitespace-pre-line text-xl font-semibold leading-8 text-foreground">
-                    {currentQuestion.prompt}
-                  </CardTitle>
+                  {currentQuestion.requiresImage && (
+                    <p
+                      role="note"
+                      className="mt-3 text-sm leading-6 text-amber-700 dark:text-amber-300"
+                    >
+                      Câu này cần hình từ đề gốc, nhưng tài liệu nhập chưa kèm ảnh. Đáp án và giải
+                      thích được giữ theo tài liệu nguồn.
+                    </p>
+                  )}
                 </div>
                 <Badge
                   variant="outline"
@@ -256,6 +273,9 @@ export function ExamPracticeView({ controller }: any) {
                   {isAnswered ? "Đã trả lời" : "Chọn 1 đáp án"}
                 </Badge>
               </div>
+              <CardTitle className="whitespace-pre-line text-xl font-semibold leading-8 text-foreground">
+                {currentQuestion.prompt}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
               {currentQuestion.parts ? (
@@ -318,15 +338,10 @@ export function ExamPracticeView({ controller }: any) {
     );
   }
 
-  const visibleSubjects = subjects.filter((subject: any) =>
-    `${subject.name} ${subject.code}`.toLowerCase().includes(search.toLowerCase()),
-  );
-
   return (
     <AppFrame onHome={() => setScreen("home")}>
       <div className="library-shell">
         <aside className="library-sidebar">
-          <p className="sidebar-label">KHÔNG GIAN HỌC TẬP</p>
           <div className="sidebar-current">
             <Library size={19} /> Thư viện đề thi
           </div>
@@ -341,7 +356,6 @@ export function ExamPracticeView({ controller }: any) {
               aria-pressed={subject.id === selectedSubjectId}
               onClick={() => setSelectedSubjectId(subject.id)}
             >
-              <Network size={18} />
               <span>
                 {subject.name}
                 <small>{subject.code}</small>
@@ -361,6 +375,7 @@ export function ExamPracticeView({ controller }: any) {
               <ArrowRight size={16} />
             </button>
           )}
+
           <div className="sidebar-total">
             <BookOpen size={18} />
             <span>
@@ -369,22 +384,11 @@ export function ExamPracticeView({ controller }: any) {
           </div>
         </aside>
         <section className="library-body">
-          <div className="library-heading">
-            <div>
-              <p className="library-kicker">LUYỆN TẬP</p>
-              <h1>Thư viện đề thi</h1>
-              <p>Chọn môn học, bắt đầu một bài luyện tập mới.</p>
-            </div>
-            <label className="library-search">
-              <Search size={18} />
-              <input
-                aria-label="Tìm môn học"
-                placeholder="Tìm môn học, mã môn…"
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-            </label>
-          </div>
+          {storageFailed && (
+            <p role="status" className="mb-4 text-sm text-rose-700 dark:text-rose-300">
+              Không lưu được tiến độ trên trình duyệt. Tiến độ hiện chỉ giữ trong phiên này.
+            </p>
+          )}
           {activeExam && (
             <section className="continue-band">
               <span className="continue-icon">
@@ -416,58 +420,40 @@ export function ExamPracticeView({ controller }: any) {
               </div>
             </section>
           )}
+
           <div className="library-section-title">
-            <h2>Môn học của bạn</h2>
-            <span>{visibleSubjects.length} môn học</span>
+            <h2>Chọn môn học</h2>
+            <span>{subjects.length} môn học</span>
           </div>
-          <div className="subject-tiles">
-            {visibleSubjects.map((subject: any) => (
+          <div className="subject-tabs" aria-label="Chọn môn học">
+            {subjects.map((subject: any) => (
               <button
                 key={subject.id}
-                className={`subject-tile ${subject.id === selectedSubjectId ? "selected" : ""}`}
                 aria-pressed={subject.id === selectedSubjectId}
+                className={subject.id === selectedSubjectId ? "selected" : ""}
                 onClick={() => setSelectedSubjectId(subject.id)}
               >
-                <div className="subject-tile-top">
-                  <span className="subject-symbol">
-                    <Network size={28} />
-                  </span>
-                  <span className="subject-code">{subject.code}</span>
-                  {subject.id === selectedSubjectId && (
-                    <CircleCheck size={19} className="subject-selected-icon" />
-                  )}
-                </div>
-                <h3>{subject.name}</h3>
-                <p>
-                  {subject.exams.length} đề luyện tập <span>·</span> {countQuestions(subject)} câu
-                  hỏi
-                </p>
-                <div className="subject-tile-footer">
-                  <span className="flex items-center gap-2">
-                    {subject.id === selectedSubjectId && <CircleCheck size={16} />}
-                    {subject.id === selectedSubjectId ? "Đang xem đề" : "Xem đề thi"}
-                  </span>
-                  {subject.id !== selectedSubjectId && <ArrowRight size={18} />}
-                </div>
+                <span>{subject.name}</span>
+                <small>{subject.code}</small>
               </button>
             ))}
-            {!visibleSubjects.length && (
-              <p className="empty-library">Không tìm thấy môn học. Thử tên hoặc mã môn khác.</p>
-            )}
           </div>
           <section className="exam-section">
             <div className="library-section-title">
               <div>
                 <p className="library-kicker">{selectedSubject.code}</p>
                 <h2>Đề luyện tập</h2>
-                <p className="exam-subject-name">{selectedSubject.name}</p>
+                <p className="exam-subject-name">
+                  {selectedSubject.name}
+                  {weakTopics.length > 0 ? ` · ${weakTopics.length} chủ đề cần ôn` : ""}
+                </p>
               </div>
               <Button
                 variant="ghost"
-                onClick={startRandomExam}
-                disabled={!selectedSubject.exams.length}
+                onClick={startAdaptivePractice}
+                disabled={!progressReady || !selectedSubject.exams.length}
               >
-                <Shuffle size={16} /> Chọn ngẫu nhiên
+                <Shuffle size={16} /> Luyện 30 câu
               </Button>
             </div>
             {selectedSubject.exams.map((exam: any, index: number) => (
@@ -478,14 +464,8 @@ export function ExamPracticeView({ controller }: any) {
                     <span className="exam-category">ĐỀ THI THỬ</span>
                     <h3>{exam.title}</h3>
                     <div className="exam-metadata">
-                      <span>
-                        <ListChecks size={16} />
-                        {exam.questions.length} câu hỏi
-                      </span>
-                      <span>
-                        <Clock3 size={16} />
-                        Thời gian tham khảo: {exam.duration || "Không giới hạn"}
-                      </span>
+                      <span>{exam.questions.length} câu hỏi</span>
+                      <span>Thời gian tham khảo: {exam.duration || "Không giới hạn"}</span>
                     </div>
                   </div>
                   <Button className="exam-start-button" onClick={() => startExam(exam)}>
@@ -530,17 +510,16 @@ function AppFrame({ children, onHome }: any) {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
-        <div className="app-header-inner mx-auto flex h-18 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="app-header-inner mx-auto flex h-14 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
           <button
             onClick={onHome}
             className="flex items-center gap-3 rounded-lg text-left focus-visible:ring-3 focus-visible:ring-primary/50 focus-visible:outline-none"
           >
-            <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GraduationCap size={24} />
+            <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <GraduationCap size={20} />
             </span>
             <span>
               <span className="block text-base font-semibold text-foreground">Thi thử</span>
-              <span className="block text-xs text-muted-foreground">Không gian luyện tập</span>
             </span>
           </button>
           <ThemeToggle />
@@ -778,7 +757,7 @@ function AnswerBlock({ question, selectedAnswer, onChoose, compact = false }: an
               key={option.id}
               disabled={isAnswered}
               onClick={() => onChoose(option.id)}
-              className={`answer-choice flex min-h-14 w-full items-start gap-3 rounded-lg border p-4 text-left transition-colors focus-visible:ring-3 focus-visible:ring-primary/50 focus-visible:outline-none disabled:cursor-default ${stateClass}`}
+              className={`answer-choice flex min-h-14 w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors focus-visible:ring-3 focus-visible:ring-primary/50 focus-visible:outline-none disabled:cursor-default ${stateClass}`}
             >
               <span
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-black ${
